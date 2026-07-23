@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import MealForm from './MealForm'
 
-export default function EmptyMealSlot({ mealType, mealLabel, date, dayLabel, onAdd }) {
+export default function EmptyMealSlot({ mealTypeId, mealLabel, dayLabel, onAdd }) {
   const [open, setOpen] = useState(false)
 
   return (
@@ -17,8 +17,8 @@ export default function EmptyMealSlot({ mealType, mealLabel, date, dayLabel, onA
       <MealForm
         open={open}
         onClose={() => setOpen(false)}
-        onSave={(name) => onAdd(name)}
-        mealType={mealLabel}
+        onSave={onAdd}
+        mealTypeId={mealTypeId}
         dayLabel={dayLabel}
       />
     </>

@@ -1,7 +1,8 @@
 'use client'
 import { useEffect } from 'react'
 
-export default function Modal({ open, onClose, title, children }) {
+export default function Modal({ open, onClose, title, children, size = 'sm' }) {
+  const widths = { sm: 'max-w-sm', md: 'max-w-lg', lg: 'max-w-2xl' }
   useEffect(() => {
     if (!open) return
     const onKey = (e) => e.key === 'Escape' && onClose()
@@ -19,7 +20,7 @@ export default function Modal({ open, onClose, title, children }) {
         onClick={onClose}
       />
       {/* Panel */}
-      <div className="relative z-10 w-full max-w-sm rounded-2xl bg-white dark:bg-gray-900 shadow-2xl border border-gray-200 dark:border-gray-700 p-6">
+      <div className={`relative z-10 w-full ${widths[size] || 'max-w-sm'} rounded-2xl bg-white dark:bg-gray-900 shadow-2xl border border-gray-200 dark:border-gray-700 p-6 max-h-[90vh] overflow-y-auto`}>
         {title && (
           <div className="flex items-center justify-between mb-5">
             <h2 className="text-base font-semibold text-gray-900 dark:text-white">{title}</h2>

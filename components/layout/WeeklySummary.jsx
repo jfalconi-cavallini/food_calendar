@@ -1,7 +1,11 @@
 'use client'
 import { useMealPlan } from '../../hooks/useMealPlan'
+import { useProfiles } from '../../hooks/useProfiles'
+import { usePerson } from '../../lib/personContext'
 import { computeWeekStats } from '../../utils/statsUtils'
-import { formatWeekRange } from '../../utils/dateUtils'
+import { computeDayCaloriesForPerson, computeDailyTarget } from '../../utils/calorieUtils'
+import { formatDateKey } from '../../utils/dateUtils'
+import { PERSON_CONFIG } from '../../lib/constants'
 
 function StatCard({ label, value, sub, accent }) {
   return (
@@ -13,32 +17,45 @@ function StatCard({ label, value, sub, accent }) {
   )
 }
 
+function PersonCalCard({ personId, meals, weekDates, profiles }) {
+  const cfg = PERSON_CONFIG[personId]
+  const profile = profiles?.[personId]
+
+  let totalCal = 0
+  for (const date of weekDates) {
+    const key = formatDateKey(date)
+    totalCal += computeDayCaloriesForPerson(meals[key] || {}, personId)
+  }
+
+  const target = computeDailyTarget(profile)
+  const weeklyTarget = target ? target * 7 : null
+
+  return (
+    <div className={`flex flex-col gap-0.5 px-4 py-3 rounded-xl border ${cfg.statAccent}`}>
+      <span className={`text-xs font-bold ${cfg.calText}`}>{cfg.emoji} {cfg.name}</span>
+      <span className="text-2xl font-bold text-gray-900 dark:text-white leading-none">
+        {totalCal > 0 ? totalCal.toLocaleString() : '—'}
+      </span>
+      <span className="text-[10px] text-gray-400 dark:text-gray-600">
+        {weeklyTarget ? `/ ${weeklyTarget.toLocaleString()} cal target` : 'cal this week'}
+      </span>
+    </div>
+  )
+}
+
 export default function WeeklySummary({ weekDates }) {
   const { meals } = useMealPlan()
-  const { completed, remaining, total } = computeWeekStats(meals, weekDates)
-
-  const pct = total > 0 ? Math.round((completed / total) * 100) : 0
+  const { cfg } = usePerson()
+  const { profiles } = useProfiles()
+  const { filled, total, remaining, pct } = computeWeekStats(meals, weekDates)
 
   return (
     <div className="flex flex-col gap-3 mb-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-sm font-semibold text-gray-900 dark:text-white">
-            Week of {formatWeekRange(weekDates)}
-          </h2>
-          {total > 0 && (
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-              {pct}% complete
-            </p>
-          )}
-        </div>
-      </div>
-
       {/* Progress bar */}
       {total > 0 && (
         <div className="h-1.5 w-full rounded-full bg-gray-100 dark:bg-gray-800 overflow-hidden">
           <div
-            className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-emerald-500 transition-all duration-500"
+            className={`h-full rounded-full bg-gradient-to-r ${cfg.progressFrom} ${cfg.progressTo} transition-all duration-500`}
             style={{ width: `${pct}%` }}
           />
         </div>
@@ -47,26 +64,18 @@ export default function WeeklySummary({ weekDates }) {
       {/* Stat cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
         <StatCard
-          label="Completed"
-          value={completed}
-          sub={`of ${total} meals`}
+          label="Meals planned"
+          value={filled}
+          sub={`of ${total} slots`}
           accent="border-emerald-200 dark:border-emerald-800 bg-emerald-50/60 dark:bg-emerald-950/30"
         />
         <StatCard
           label="Remaining"
           value={remaining}
-          sub="meals to go"
+          sub={`${pct}% complete`}
         />
-        <StatCard
-          label="Calories"
-          value="—"
-          sub="Coming soon"
-        />
-        <StatCard
-          label="Protein"
-          value="—"
-          sub="Coming soon"
-        />
+        <PersonCalCard personId="jose" meals={meals} weekDates={weekDates} profiles={profiles} />
+        <PersonCalCard personId="emma" meals={meals} weekDates={weekDates} profiles={profiles} />
       </div>
     </div>
   )

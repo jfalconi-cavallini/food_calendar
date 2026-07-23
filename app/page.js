@@ -23,7 +23,7 @@ export default function HomePage() {
       </main>
 
       <footer className="py-4 text-center text-xs text-gray-400 dark:text-gray-600 border-t border-gray-100 dark:border-gray-900">
-        Meal Planner — built with Next.js
+        Meal Planner — Jose & Emma
       </footer>
     </div>
   )

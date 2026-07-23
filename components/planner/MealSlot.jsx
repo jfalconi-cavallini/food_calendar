@@ -12,9 +12,9 @@ export default function MealSlot({ mealType, meal, dateKey, dayLabel, onAdd, onT
       {meal ? (
         <MealCard
           meal={meal}
-          mealType={mealType.id}
+          mealTypeId={mealType.id}
           mealLabel={mealType.label}
-          date={dateKey}
+          dateKey={dateKey}
           dayLabel={dayLabel}
           onToggle={onToggle}
           onUpdate={onUpdate}
@@ -22,9 +22,8 @@ export default function MealSlot({ mealType, meal, dateKey, dayLabel, onAdd, onT
         />
       ) : (
         <EmptyMealSlot
-          mealType={mealType.id}
+          mealTypeId={mealType.id}
           mealLabel={mealType.label}
-          date={dateKey}
           dayLabel={dayLabel}
           onAdd={onAdd}
         />

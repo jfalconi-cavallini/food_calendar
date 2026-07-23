@@ -1,19 +1,26 @@
 'use client'
 import { useState } from 'react'
 import MealForm from './MealForm'
+import { usePerson } from '../../lib/personContext'
+import { SHARED_MEAL_TYPES } from '../../lib/constants'
 
-export default function MealCard({ meal, mealType, mealLabel, date, dayLabel, onToggle, onUpdate, onDelete }) {
+function isShared(mealTypeId) { return SHARED_MEAL_TYPES.some(t => t.id === mealTypeId) }
+
+export default function MealCard({ meal, mealTypeId, mealLabel, dateKey, dayLabel, onToggle, onUpdate, onDelete }) {
   const [editing, setEditing] = useState(false)
+  const { activePerson, cfg } = usePerson()
+
+  const displayCal = isShared(mealTypeId)
+    ? (activePerson === 'jose' ? meal.joseCalories : meal.emmaCalories)
+    : (mealTypeId?.includes('jose') ? meal.joseCalories : meal.emmaCalories)
 
   return (
     <>
-      <div
-        className={`group relative rounded-xl border px-3 py-2.5 transition-all duration-200 ${
-          meal.completed
-            ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800'
-            : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-sm'
-        }`}
-      >
+      <div className={`group relative rounded-xl border px-3 py-2.5 transition-all duration-200 ${
+        meal.completed
+          ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800'
+          : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-sm'
+      }`}>
         <div className="flex items-start gap-2.5">
           {/* Completion toggle */}
           <button
@@ -32,19 +39,32 @@ export default function MealCard({ meal, mealType, mealLabel, date, dayLabel, on
             )}
           </button>
 
-          {/* Meal name */}
-          <span
-            className={`text-sm font-medium leading-snug flex-1 min-w-0 break-words ${
+          <div className="flex flex-col flex-1 min-w-0">
+            <span className={`text-sm font-medium leading-snug break-words ${
               meal.completed
                 ? 'line-through text-gray-400 dark:text-gray-500'
                 : 'text-gray-800 dark:text-gray-100'
-            }`}
-          >
-            {meal.name}
-          </span>
+            }`}>
+              {meal.name}
+            </span>
+
+            {/* Calorie display */}
+            {displayCal > 0 && (
+              <span className={`text-[10px] font-medium mt-0.5 ${cfg.accentText}`}>
+                {displayCal.toLocaleString()} cal
+              </span>
+            )}
+
+            {/* Ingredient count badge */}
+            {meal.ingredients?.length > 0 && (
+              <span className="text-[10px] text-gray-400 dark:text-gray-600 mt-0.5">
+                {meal.ingredients.length} ingredient{meal.ingredients.length !== 1 ? 's' : ''}
+              </span>
+            )}
+          </div>
         </div>
 
-        {/* Actions — visible on hover */}
+        {/* Hover actions */}
         <div className="flex items-center gap-1 mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-150 justify-end">
           <button
             onClick={() => setEditing(true)}
@@ -64,9 +84,9 @@ export default function MealCard({ meal, mealType, mealLabel, date, dayLabel, on
       <MealForm
         open={editing}
         onClose={() => setEditing(false)}
-        onSave={(name) => onUpdate(name)}
-        initialName={meal.name}
-        mealType={mealLabel}
+        onSave={onUpdate}
+        initialMeal={meal}
+        mealTypeId={mealTypeId}
         dayLabel={dayLabel}
       />
     </>

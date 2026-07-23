@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "jest"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.110.8",
@@ -15,10 +16,12 @@
     "react-dom": "19.2.4"
   },
   "devDependencies": {
+    "@jest/globals": "^30.4.1",
     "@playwright/test": "^1.61.1",
     "@tailwindcss/postcss": "^4",
     "eslint": "^9",
     "eslint-config-next": "16.2.11",
+    "jest": "^30.4.2",
     "tailwindcss": "^4"
   }
 }

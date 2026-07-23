@@ -1,23 +1,29 @@
 'use client'
 import { useTheme } from '../../hooks/useTheme'
 import { formatWeekRange } from '../../utils/dateUtils'
+import { usePerson } from '../../lib/personContext'
+import Nav from './Nav'
 
 export default function Header({ weekDates, onPrevWeek, onNextWeek, onToday, offset }) {
-  const { dark, toggle } = useTheme()
+  const { dark, toggle: toggleTheme } = useTheme()
+  const { activePerson, toggle: togglePerson, cfg } = usePerson()
 
   return (
     <header className="sticky top-0 z-40 border-b border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-gray-950/80 backdrop-blur-md">
       <div className="max-w-screen-2xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
 
-        {/* Logo */}
-        <div className="flex items-center gap-2 flex-shrink-0">
-          <span className="text-xl">🥗</span>
-          <span className="text-base font-bold text-gray-900 dark:text-white tracking-tight">
-            Meal Planner
-          </span>
+        {/* Left: Logo + Nav */}
+        <div className="flex items-center gap-4 flex-shrink-0">
+          <div className="flex items-center gap-2">
+            <span className="text-xl">🥗</span>
+            <span className="text-base font-bold text-gray-900 dark:text-white tracking-tight hidden sm:block">
+              Meal Planner
+            </span>
+          </div>
+          <Nav />
         </div>
 
-        {/* Week navigation */}
+        {/* Center: Week navigation */}
         <div className="flex items-center gap-2">
           <button
             onClick={onPrevWeek}
@@ -29,7 +35,7 @@ export default function Header({ weekDates, onPrevWeek, onNextWeek, onToday, off
             </svg>
           </button>
 
-          <div className="flex flex-col items-center min-w-[160px]">
+          <div className="flex flex-col items-center min-w-[140px]">
             <span className="text-xs font-medium text-gray-700 dark:text-gray-300 text-center leading-tight">
               {formatWeekRange(weekDates)}
             </span>
@@ -54,21 +60,21 @@ export default function Header({ weekDates, onPrevWeek, onNextWeek, onToday, off
           </button>
         </div>
 
-        {/* Right actions */}
-        <div className="flex items-center gap-2">
-          {/* Today button */}
-          {offset !== 0 && (
-            <button
-              onClick={onToday}
-              className="hidden sm:inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-900 transition-colors"
-            >
-              Today
-            </button>
-          )}
+        {/* Right: Person toggle + dark mode */}
+        <div className="flex items-center gap-2 flex-shrink-0">
+          {/* Person toggle */}
+          <button
+            onClick={togglePerson}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-white transition-all duration-300 shadow-sm ${cfg.btnBg}`}
+            aria-label={`Switch to ${activePerson === 'jose' ? 'Emma' : 'Jose'}`}
+          >
+            <span>{cfg.emoji}</span>
+            <span className="hidden sm:block">{cfg.name}</span>
+          </button>
 
           {/* Dark mode toggle */}
           <button
-            onClick={toggle}
+            onClick={toggleTheme}
             className="p-2 rounded-xl text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
             aria-label="Toggle dark mode"
           >
